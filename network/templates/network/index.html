@@ -1,5 +1,25 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    New Post
+    {% if user.is_authenticated %}
+        <h4>Post something:</h4>
+        <form  action="{% url 'create_post' %}" method="post" >
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit">
+        </form>
+    {% endif %}
+
+<h4>Recent Posts:</h4>
+<div class="list-group">
+    {% for post in posts %}
+        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <small class="text-muted"><b>{{ post.author }}:</b></small>
+            </div>
+            <p class="mb-1">{{ post }}</p>
+            <p class="mb-1">{{ post.date_time }}</p>
+        </a>
+    {% endfor %}
+</div>
 {% endblock %}

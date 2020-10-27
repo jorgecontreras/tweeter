@@ -3,13 +3,18 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django import forms
 
-from .models import User
+from .models import User, Post
 
+class NewPostForm(forms.Form):
+    content = forms.CharField(widget=forms.Textarea)
 
 def index(request):
-    return render(request, "network/index.html")
-
+    return render(request, "network/index.html", {
+        "form": NewPostForm(),
+        "posts": Post.objects.all().order_by('-date_time')
+    })
 
 def login_view(request):
     if request.method == "POST":
@@ -61,3 +66,30 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+def create_post(request):
+    user = request.user
+
+    if user.is_anonymous:
+        return HttpResponseRedirect('/login')
+
+    if request.method == "POST":
+        print("will process now")
+        form = NewPostForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data["content"]
+            #will save post here
+            p = Post(content=content, author=user)
+            p.save()
+            print("saved post")
+            
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "", {
+                "form": form
+            })
+    return render(request, "", {
+        "form": NewPostForm()
+    })
+            
+
