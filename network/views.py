@@ -4,16 +4,21 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
+from django.core.paginator import Paginator
 
 from .models import User, Post
 
 class NewPostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea)
 
-def index(request):
+def index(request, page_id=1):
+    posts = Post.objects.all().order_by('-date_time')
+    p = Paginator(posts,10)
+    page = p.page(page_id)
+
     return render(request, "network/index.html", {
         "form": NewPostForm(),
-        "posts": Post.objects.all().order_by('-date_time')
+        "page": page
     })
 
 def login_view(request):
