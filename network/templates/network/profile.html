@@ -1,19 +1,20 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+<h2>
+    {{ profile_name }}
+</h2>
+followers: <span class="badge badge-info">{{ followers }}</span>
+following: <span class="badge badge-info">{{ following }}</span>
+
     {% if user.is_authenticated %}
-        <h4>Post something:</h4>
-        <form  action="{% url 'create_post' %}" method="post" >
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit">
-        </form>
+        FOLLOW
     {% endif %}
 
 <h4>Recent Posts:</h4>
 <div class="list-group">
     {% for post in page %}
-        <a href="{% url 'profile' post.author.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
                 <small class="text-muted"><b>{{ post.author }}:</b></small>
             </div>

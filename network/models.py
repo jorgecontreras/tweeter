@@ -5,7 +5,8 @@ from django.db import models
 import datetime 
 
 class User(AbstractUser):
-    pass
+    followers = models.IntegerField(default=0)
+    following = models.IntegerField(default=0)
 
 class Post(models.Model):
     content = models.CharField(max_length=144)
@@ -14,3 +15,10 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.content}"
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="follower")
+    profile = models.ForeignKey(User, on_delete=models.PROTECT, related_name="followed")
+
+    class Meta:
+        unique_together = ('user', 'profile')

@@ -97,4 +97,28 @@ def create_post(request):
         "form": NewPostForm()
     })
             
+def profile(request, profile_id=None, page_id=1):
+    user = request.user
+
+    # accessing own profile
+    if profile_id is None:
+        profile_id = user.id
+
+    posts = Post.objects.filter(author=profile_id).order_by('-date_time')
+    profile = User.objects.get(id=profile_id)
+    p = Paginator(posts,10)
+    page = p.page(page_id)
+    try:
+        follow = Follow.objects(filter(user=user, profile=profile_id)).first()
+    except:
+        follow = None 
+        
+    return render(request, "network/profile.html", {
+        "page": page,
+        "profile_name": profile.username,
+        "followers": profile.followers,
+        "following": profile.following,
+        "user_is_following": follow
+
+    })
 
