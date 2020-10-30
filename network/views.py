@@ -1,10 +1,15 @@
+import json
+import datetime
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post
 
@@ -12,7 +17,7 @@ class NewPostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea)
 
 def index(request, page_id=1):
-    posts = Post.objects.all().order_by('-date_time')
+    posts = Post.objects.all().order_by('-updated')
     p = Paginator(posts,10)
     page = p.page(page_id)
 
@@ -96,30 +101,36 @@ def create_post(request):
     return render(request, "", {
         "form": NewPostForm()
     })
-            
+
+@csrf_exempt
+@login_required        
 def update_post(request, post_id):
+    
+    print("will try to update post" + str(post_id))
+
     user = request.user
-
-    if user.is_anonymous:
-        return HttpResponseRedirect('/login')
     
-    if request.method == "PUT":
-        form = NewPostForm(request.PUT)
-        if form.is_valid():
-            content = form.cleaned_data["content"]
-            try:
-                p = Post.objects(filter(author=user, id=post_id)).first()
-                p.content = content
-                p.save()
-            except:
-                p = None
-                error = "update error"
-
-    return JsonResponse({"message": "Post updated successfully."}, status=200)    
-
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
     
-
+    data = json.loads(request.body)
+    content = data.get("content")
     
+    try:
+        p = Post.objects.filter(author=user, id=post_id).first()
+        p.content = content
+        p.save()
+    except:
+        p = None
+        return JsonResponse({"message": "Error updating the post"}, status=500)
+
+    return JsonResponse({
+        "status": "success",
+        "content": content,
+        "updated": p.updated,
+        "id": p.id
+        }, status=200)    
+
 def profile(request, profile_id=None, page_id=1):
     user = request.user
 
@@ -127,7 +138,7 @@ def profile(request, profile_id=None, page_id=1):
     if profile_id is None:
         profile_id = user.id
 
-    posts = Post.objects.filter(author=profile_id).order_by('-date_time')
+    posts = Post.objects.filter(author=profile_id).order_by('-updated')
     profile = User.objects.get(id=profile_id)
     p = Paginator(posts,10)
     page = p.page(page_id)

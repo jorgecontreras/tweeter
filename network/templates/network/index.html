@@ -15,26 +15,26 @@
 <h4>Recent Posts:</h4>
 <div class="list-group">
     {% for post in page %}
-    <div>
-        <a href="{% url 'profile' post.author.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="list-group-item list-group-item-action flex-column align-items-start">
+        
             <p>
 
             <div class="d-flex w-100 justify-content-between">
-                <small class="text-muted"><b>{{ post.author }}:</b></small>
+                <a href="{% url 'profile' post.author.id %}"><small class="text-muted"><b>{{ post.author }}:</b></small></a>
             </div>
             
                 <div id="post{{ post.id }}">
                 {{ post }}
-                </div>
+                
                 <br>
-                <small><i>{{ post.date_time }}</i></small>
+                <small><i>{{ post.updated }}</i></small>
                 {% if user.id == post.author.id %}
                 <small><a href="#" onclick="edit({{post.id}}, '{{post.content}}');" > Edit</a></small>
                 {% endif %}
                 </small>
+                </div>
             </p>
         
-        </a>
     </div>
     {% endfor %}
 </div>
