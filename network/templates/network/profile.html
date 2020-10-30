@@ -1,5 +1,7 @@
 {% extends "network/layout.html" %}
 
+{% load static %}
+
 {% block body %}
 <h2>
     {{ profile_name }}
@@ -7,8 +9,8 @@
 followers: <span class="badge badge-info">{{ followers }}</span>
 following: <span class="badge badge-info">{{ following }}</span>
 
-    {% if user.is_authenticated %}
-        FOLLOW
+    {% if user.is_authenticated and user.id != profile_id %}
+        <button onclick="follow('{{ profile_id }}')" id="follow_button">{{ follow_button }}</button>
     {% endif %}
 
 <h4>Recent Posts:</h4>
@@ -59,4 +61,8 @@ following: <span class="badge badge-info">{{ following }}</span>
     </ul>
   </nav>
 
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/feed.js' %}"></script>
 {% endblock %}

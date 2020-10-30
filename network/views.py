@@ -11,7 +11,7 @@ from django import forms
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Post
+from .models import User, Post, Follow
 
 class NewPostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea)
@@ -143,16 +143,66 @@ def profile(request, profile_id=None, page_id=1):
     p = Paginator(posts,10)
     page = p.page(page_id)
     try:
-        follow = Follow.objects(filter(user=user, profile=profile_id)).first()
+        follow = Follow.objects.filter(user=user, profile=profile_id).first()
+        followers = Follow.objects.filter(profile=profile_id).count()
+        following = Follow.objects.filter(user=profile_id).count()
     except:
-        follow = None 
+        follow = None
+        followers = 0
+        following = 0
+
+    if follow is None:
+        follow_button = "Follow"
+    else:
+        follow_button = "Unfollow"
         
     return render(request, "network/profile.html", {
         "page": page,
         "profile_name": profile.username,
-        "followers": profile.followers,
-        "following": profile.following,
-        "user_is_following": follow
+        "followers": followers,
+        "following": following,
+        "profile_id" : profile.id,
+        "follow_button": follow_button
 
     })
 
+@csrf_exempt
+@login_required  
+def follow(request, profile_id=None):
+    user = request.user
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    profile = User.objects.filter(id=profile_id).first()
+    user = User.objects.filter(id=user.id).first()
+
+    if user == profile:
+        return JsonResponse({
+            "status": "error",
+            "following": False
+        }, status=200)
+
+    try:
+        follow = Follow.objects.filter(user=user, profile=profile).first()
+    except:
+        follow = None 
+        
+    # There is no follow, add it
+    if follow is None:
+        try:
+            follow = Follow(user=user, profile=profile)
+            follow.save()
+            following = True
+        except:
+            following = False
+
+    # There is a follow, delete it
+    else:
+        follow.delete()
+        following = False
+
+    return JsonResponse({
+        "status": "success",
+        "following": following
+        }, status=200)
