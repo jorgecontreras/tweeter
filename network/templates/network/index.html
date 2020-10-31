@@ -29,9 +29,10 @@
                 <br>
                 <small><i>{{ post.updated }}</i></small>
                 {% if user.id == post.author.id %}
-                <small><a href="#" onclick="edit({{post.id}}, '{{post.content}}');" > Edit</a></small>
+                <small><a href="#a" onclick="edit({{post.id}}, '{{post.content}}');" > Edit</a></small>
                 {% endif %}
-                </small>
+                <small><a href="#a" onclick="like({{post.id}});" id="like_post{{post.id}}"> <img src='static/network/like.png' height='20px' %}>  </a></small>
+                
                 </div>
             </p>
         

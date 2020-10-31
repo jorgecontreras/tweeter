@@ -23,3 +23,10 @@ class Follow(models.Model):
 
     class Meta:
         unique_together = ('user', 'profile')
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="user_like")
+    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name="liked_post")
+
+    class Meta:
+        unique_together = ('user', 'post')

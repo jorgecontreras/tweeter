@@ -11,7 +11,7 @@ from django import forms
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Post, Follow
+from .models import User, Post, Follow, Like
 
 class NewPostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea)
@@ -88,6 +88,7 @@ def create_post(request):
         form = NewPostForm(request.POST)
         if form.is_valid():
             content = form.cleaned_data["content"]
+            content = content.strip()
             #will save post here
             p = Post(content=content, author=user)
             p.save()
@@ -115,7 +116,8 @@ def update_post(request, post_id):
     
     data = json.loads(request.body)
     content = data.get("content")
-    
+    content = content.strip()
+            
     try:
         p = Post.objects.filter(author=user, id=post_id).first()
         p.content = content
@@ -205,4 +207,36 @@ def follow(request, profile_id=None):
     return JsonResponse({
         "status": "success",
         "following": following
+        }, status=200)
+
+@csrf_exempt
+@login_required
+def like_post(request, post_id):
+    user = request.user
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST is required"}, status=400)
+
+    try:
+        like = Like.objects.filter(user=user, post_id=post_id).first() 
+    except:
+        like = None
+
+    # There is no like, add it
+    if like is None:
+        try:
+            like = Like(user=user, post_id=post_id)
+            like.save()
+            liked = True
+        except:
+            liked = False
+
+    # There is a like, delete it
+    else:
+        like.delete()
+        liked = False
+
+    return JsonResponse({
+        "status": "success",
+        "liked": liked
         }, status=200)
