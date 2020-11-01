@@ -17,13 +17,23 @@ class NewPostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea)
 
 def index(request, page_id=1):
+
+    user = request.user
+
     posts = Post.objects.all().order_by('-updated')
     p = Paginator(posts,10)
+    
+    # get posts liked by user
+    liked = []
+    if not user.is_anonymous:
+        liked = Like.objects.filter(user=user, post__in=posts).values_list('post_id', flat=True)
+    
     page = p.page(page_id)
 
     return render(request, "network/index.html", {
         "form": NewPostForm(),
-        "page": page
+        "page": page,
+        "liked" : liked
     })
 
 def login_view(request):
@@ -117,19 +127,25 @@ def update_post(request, post_id):
     data = json.loads(request.body)
     content = data.get("content")
     content = content.strip()
-            
+    
     try:
         p = Post.objects.filter(author=user, id=post_id).first()
         p.content = content
         p.save()
+        like = Like.objects.filter(user=user, post=p).first()
     except:
         p = None
         return JsonResponse({"message": "Error updating the post"}, status=500)
 
+    if like is None:
+        liked = False
+    else:
+        liked = True
     return JsonResponse({
         "status": "success",
         "content": content,
         "updated": p.updated,
+        "liked": liked,
         "id": p.id
         }, status=200)    
 
