@@ -10,6 +10,7 @@ from django.urls import reverse
 from django import forms
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count
 
 from .models import User, Post, Follow, Like
 
@@ -21,6 +22,15 @@ def index(request, page_id=1):
     user = request.user
 
     posts = Post.objects.all().order_by('-updated')
+    
+    # get total likes of each post
+    total_likes = Like.objects.filter(post__in=posts).values('post').annotate(total=Count('post'))
+    
+    like_count = {}
+
+    for post_likes in total_likes:
+        like_count[post_likes.get('post')] = post_likes.get('total', 0)
+
     p = Paginator(posts,10)
     
     # get posts liked by user
@@ -28,12 +38,16 @@ def index(request, page_id=1):
     if not user.is_anonymous:
         liked = Like.objects.filter(user=user, post__in=posts).values_list('post_id', flat=True)
     
+    for post in posts:
+        post.total_likes = like_count.get(post.id, 0)
+
     page = p.page(page_id)
 
     return render(request, "network/index.html", {
         "form": NewPostForm(),
         "page": page,
-        "liked" : liked
+        "liked" : liked,
+        "like_count" : like_count
     })
 
 def login_view(request):
@@ -252,7 +266,11 @@ def like_post(request, post_id):
         like.delete()
         liked = False
 
+     # get total likes of post
+    total_likes = Like.objects.filter(post_id=post_id).count()
+
     return JsonResponse({
         "status": "success",
-        "liked": liked
+        "liked": liked,
+        "total_likes": total_likes
         }, status=200)

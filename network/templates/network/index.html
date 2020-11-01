@@ -4,7 +4,7 @@
 
 {% block body %}
     {% if user.is_authenticated %}
-        <h4>Post something:</h4>
+        <h4>Say something:</h4>
         <form  action="{% url 'create_post' %}" method="post" >
             {% csrf_token %}
             {{ form.as_p }}
@@ -17,7 +17,7 @@
     {% for post in page %}
     <div class="list-group-item list-group-item-action flex-column align-items-start">
         
-            <p>
+            <div>
 
             <div class="d-flex w-100 justify-content-between">
                 <a href="{% url 'profile' post.author.id %}"><small class="text-muted"><b>{{ post.author }}:</b></small></a>
@@ -25,7 +25,6 @@
             
                 <div id="post{{ post.id }}">
                 {{ post }}
-                
                 <br>
                 <small><i>{{ post.updated }}</i></small>
                 {% if user.id == post.author.id %}
@@ -36,7 +35,10 @@
                 {% else %}
                 <small><a href="#a" onclick="like({{post.id}});" id="like_post{{post.id}}"> <img src='/static/network/unlike.png' height='20px' %}>  </a></small>
                 {% endif %}
-                </div>
+
+                <span id="like_count{{post.id}}" style="color:#0099DD; font-size: 10px;">{{ post.total_likes }}</span>
+            </div>
+            </div>
             </p>
         
     </div>

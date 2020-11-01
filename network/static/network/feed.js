@@ -78,6 +78,8 @@ function like(post_id) {
         } else {
             document.querySelector("#like_post"+post_id).innerHTML = "<img src='/static/network/unlike.png' height='20px' %}'>"
         }
+
+        document.querySelector("#like_count"+post_id).innerHTML = result.total_likes
     })
     
     return false
