@@ -51,13 +51,15 @@ function follow(profile_id) {
     .then(response => response.json())
     .then(result => {
         console.log(result.status);
-        console.log(result.following);
+        console.log(result.user_following);
 
-        if (result.following) {
+        if (result.user_following) {
             document.querySelector("#follow_button").innerHTML = "Unfollow"
         } else {
             document.querySelector("#follow_button").innerHTML = "Follow"
         }
+
+        document.querySelector("#followers").innerHTML = result.followers
         
     });
 

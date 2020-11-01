@@ -6,8 +6,8 @@
 <h2>
     {{ profile_name }}
 </h2>
-followers: <span class="badge badge-info">{{ followers }}</span>
-following: <span class="badge badge-info">{{ following }}</span>
+followers: <span class="badge badge-info" id="followers">{{ followers }}</span>
+following: <span class="badge badge-info" id="following">{{ following }}</span>
 
     {% if user.is_authenticated and user.id != profile_id %}
         <button onclick="follow('{{ profile_id }}')" id="follow_button">{{ follow_button }}</button>
@@ -16,13 +16,33 @@ following: <span class="badge badge-info">{{ following }}</span>
 <h4>Recent Posts:</h4>
 <div class="list-group">
     {% for post in page %}
-        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="list-group-item list-group-item-action flex-column align-items-start">
+        
+            <div>
+
             <div class="d-flex w-100 justify-content-between">
-                <small class="text-muted"><b>{{ post.author }}:</b></small>
+                <a href="{% url 'profile' post.author.id %}"><small class="text-muted"><b>{{ post.author }}:</b></small></a>
             </div>
-            <p class="mb-1">{{ post }}</p>
-            <p class="mb-1">{{ post.date_time }}</p>
-        </a>
+            
+                <div id="post{{ post.id }}">
+                {{ post }}
+                <br>
+                <small><i>{{ post.updated }}</i></small>
+                {% if user.id == post.author.id %}
+                <small><a href="#a" onclick="edit({{post.id}}, '{{post.content}}');" > Edit</a></small>
+                {% endif %}
+                {% if post.id in liked %}
+                <small><a href="#a" onclick="like({{post.id}});" id="like_post{{post.id}}"> <img src='/static/network/like.png' height='20px' %}>  </a></small>
+                {% else %}
+                <small><a href="#a" onclick="like({{post.id}});" id="like_post{{post.id}}"> <img src='/static/network/unlike.png' height='20px' %}>  </a></small>
+                {% endif %}
+
+                <span id="like_count{{post.id}}" style="color:#0099DD; font-size: 10px;">{{ post.total_likes }}</span>
+            </div>
+            </div>
+            </p>
+        
+    </div>
     {% endfor %}
 </div>
 

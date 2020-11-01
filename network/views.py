@@ -46,8 +46,7 @@ def index(request, page_id=1):
     return render(request, "network/index.html", {
         "form": NewPostForm(),
         "page": page,
-        "liked" : liked,
-        "like_count" : like_count
+        "liked" : liked
     })
 
 def login_view(request):
@@ -171,6 +170,25 @@ def profile(request, profile_id=None, page_id=1):
         profile_id = user.id
 
     posts = Post.objects.filter(author=profile_id).order_by('-updated')
+
+    # get total likes of each post
+    total_likes = Like.objects.filter(post__in=posts).values('post').annotate(total=Count('post'))
+    
+    like_count = {}
+
+    for post_likes in total_likes:
+        like_count[post_likes.get('post')] = post_likes.get('total', 0)
+
+    for post in posts:
+        post.total_likes = like_count.get(post.id, 0)
+
+    p = Paginator(posts,10)
+    
+    # get posts liked by user
+    liked = []
+    if not user.is_anonymous:
+        liked = Like.objects.filter(user=user, post__in=posts).values_list('post_id', flat=True)
+
     profile = User.objects.get(id=profile_id)
     p = Paginator(posts,10)
     page = p.page(page_id)
@@ -194,7 +212,8 @@ def profile(request, profile_id=None, page_id=1):
         "followers": followers,
         "following": following,
         "profile_id" : profile.id,
-        "follow_button": follow_button
+        "follow_button": follow_button,
+        "liked": liked
 
     })
 
@@ -225,18 +244,24 @@ def follow(request, profile_id=None):
         try:
             follow = Follow(user=user, profile=profile)
             follow.save()
-            following = True
+            user_following = True
         except:
-            following = False
+            user_following = False
 
     # There is a follow, delete it
     else:
         follow.delete()
-        following = False
+        user_following = False
+
+    # Retrieve new totals
+    followers = Follow.objects.filter(profile=profile_id).count()
+    following = Follow.objects.filter(user=profile_id).count()
 
     return JsonResponse({
         "status": "success",
-        "following": following
+        "user_following": user_following,
+        "following": following,
+        "followers": followers
         }, status=200)
 
 @csrf_exempt
