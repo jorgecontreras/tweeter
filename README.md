@@ -23,9 +23,9 @@ Clicking on a username loads that user’s profile page. This page displays:
 
 ## Following: 
 
-The “Following” link in the navigation bar should take the user to a page where they see all posts made by users that the current user follows.
-This page should behave just as the “All Posts” page does, just with a more limited set of posts.
-This page should only be available to users who are signed in.
+The “Following” link in the navigation bar takes the user to a page where they see all posts made by users that the current user follows.
+This page behaves just as the “All Posts” page does, just with a more limited set of posts.
+This page is only available to users who are signed in.
 
 ## Pagination: 
 
@@ -33,9 +33,12 @@ On any page that displays posts, posts only displays 10 on a page. If there are 
 
 ## Edit Post: 
 
-Users should be able to click an “Edit” button or link on any of their own posts to edit that post.
-When a user clicks “Edit” for one of their own posts, the content of their post should be replaced with a textarea where the user can edit the content of their post.
-The user should then be able to “Save” the edited post. Using JavaScript, you should be able to achieve this without requiring a reload of the entire page.
-For security, ensure that your application is designed such that it is not possible for a user, via any route, to edit another user’s posts.
-“Like” and “Unlike”: Users should be able to click a button or link on any post to toggle whether or not they “like” that post.
-Using JavaScript, you should asynchronously let the server know to update the like count (as via a call to fetch) and then update the post’s like count displayed on the page, without requiring a reload of the entire page.
+Users is able to click an “Edit” button or link on any of their own posts to edit that post.
+When a user clicks “Edit” for one of their own posts, the content of their post is replaced with a textarea where the user can edit the content of their post.
+The user then can click on “Save” to update the edited post. Using JavaScript, this is achieved without requiring a reload of the entire page.
+For security, the application is designed such that it is not possible for a user, via any route, to edit another user’s posts.
+
+## “Like” and “Unlike”: 
+
+Users can click a link on any post to toggle whether or not they “like” that post.
+Using JavaScript, this happens asynchronously and the server knows to update the like count (as via a call to fetch) and then update the post’s like count displayed on the page, without requiring a reload of the entire page.
