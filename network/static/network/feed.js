@@ -20,6 +20,7 @@ function update(id) {
     .then(result => {
         console.log(result.status);
 
+        
         updated_content = result.content + 
         "<br>" +
         "<small><i>" + result.updated + "</i></small>" +

@@ -1,6 +1,7 @@
 {% extends "network/layout.html" %}
 
 {% load static %}
+{% load humanize %}
 
 {% block body %}
     {% if user.is_authenticated %}
@@ -26,7 +27,7 @@
                 <div id="post{{ post.id }}">
                 {{ post }}
                 <br>
-                <small><i>{{ post.updated }}</i></small>
+                <small><i>{{ post.updated|naturaltime }}</i></small>
                 {% if user.id == post.author.id %}
                 <small><a href="#a" onclick="edit({{post.id}}, '{{post.content}}');" > Edit</a></small>
                 {% endif %}

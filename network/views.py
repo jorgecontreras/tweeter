@@ -17,11 +17,17 @@ from .models import User, Post, Follow, Like
 class NewPostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea)
 
-def index(request, page_id=1):
+def index(request, page_id=1, filter_by=None):
 
     user = request.user
 
-    posts = Post.objects.all().order_by('-updated')
+    if filter_by is None:
+        posts = Post.objects.all().order_by('-updated')
+    if filter_by == "following":
+        followed = Follow.objects.filter(user=user).values('profile').all()
+
+        print(followed)
+        posts = Post.objects.filter(author__in=followed).all()
     
     # get total likes of each post
     total_likes = Like.objects.filter(post__in=posts).values('post').annotate(total=Count('post'))
@@ -157,7 +163,7 @@ def update_post(request, post_id):
     return JsonResponse({
         "status": "success",
         "content": content,
-        "updated": p.updated,
+        "updated": 'now',
         "liked": liked,
         "id": p.id
         }, status=200)    
