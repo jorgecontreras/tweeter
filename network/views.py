@@ -15,7 +15,7 @@ from django.db.models import Count
 from .models import User, Post, Follow, Like
 
 class NewPostForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea)
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows':2, 'cols':40}), label='')
 
 def index(request, page_id=1, filter_by=None):
 

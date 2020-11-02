@@ -9,10 +9,11 @@
         <form  action="{% url 'create_post' %}" method="post" >
             {% csrf_token %}
             {{ form.as_p }}
-            <input type="submit">
+            <input type="submit" class="btn btn-primary" value="Post">
         </form>
     {% endif %}
 
+    <p>&nbsp;</p>
 <h4>Recent Posts:</h4>
 <div class="list-group">
     {% for post in page %}
